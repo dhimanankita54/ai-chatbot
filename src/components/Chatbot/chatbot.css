@@ -1,0 +1,10 @@
+pre[class*="language-"],
+.formatted {
+  white-space: pre-wrap;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none; /* Hides scrollbar in Webkit browsers */
+}
