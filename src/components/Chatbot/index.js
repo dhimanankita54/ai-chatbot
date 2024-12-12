@@ -11,6 +11,7 @@ import 'prismjs/components/prism-javascript.min.js'; // Import JavaScript suppor
 import 'prismjs/components/prism-java.min.js'; // Import Java support
 import './chatbot.css';
 import { BiSolidSend } from "react-icons/bi";
+import logo from '../../assets/images/chatbot.png';
 
 const genAI = new GoogleGenerativeAI("AIzaSyB4YYzKMmxj4sdlQofvnNQj60ZiD1hlWUk");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -82,8 +83,13 @@ const Chatbot = () => {
 
     // const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
-    const { messages } = useSelector((state) => state.chatbotSlice)
+    const { messages, chatHistory } = useSelector((state) => state.chatbotSlice)
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        // Load chat history or initialize session on component mount
+        console.log('Chat History:', chatHistory);
+    }, [chatHistory]);
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
@@ -98,18 +104,17 @@ const Chatbot = () => {
         try {
             // Send the user message to the ChatGPT API
             const prompt = input;
-            const chat = model.startChat({
-                history: [
-                    {
-                        role: "user",
-                        parts: [{ text: "Hello" }],
-                    },
-                    {
-                        role: "model",
-                        parts: [{ text: "Great to meet you. What would you like to know?" }],
-                    },
-                ],
+
+            const history = messages.map((msg) => ({
+                role: msg.role === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.text }],
+            }));
+
+            history.push({
+                role: 'user',
+                parts: [{ text: input }],
             });
+            const chat = model.startChat({ history });
             const result = await chat.sendMessage(prompt);
 
             console.log(result.response.text());
@@ -127,16 +132,36 @@ const Chatbot = () => {
         }
     };
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && !event.ctrlKey) {
+            // Prevent the default behavior of Enter key
+            event.preventDefault();
+            handleSendMessage();
+        } else if (event.key === 'Enter' && event.ctrlKey) {
+            // Add a new line when Ctrl+Enter is pressed
+            event.preventDefault();
+            setInput((prev) => prev + '\n');
+        }
+    };
+
     return (
         <>
-            <div className="w-full mb-10">
+            <div className="w-full mb-10 flex items-center justify-center flex-col">
+                {messages.length <= 0 &&
+                    <p className="font-roboto text-3xl text-gray-50 font-bold tracking-wide">
+                        What can I help with?
+                    </p>
+                }
                 <div className="w-full  flex items-center justify-center flex-col">
                     <div className="w-[95%] md:w-1/2 max-h-[370px] overflow-auto scroll pb-10">
                         {messages.map((message, index) => (
                             <div key={index} className={`flex ${message.role === 'bot' ? "items-start justify-start" : "items-end justify-end"} flex-col`}>
                                 {message.role === 'bot' ? (
-                                    <div className="font-roboto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl text-sm tracking-wider text-gray-50 my-4">
-                                        <FormattedText response={message.text} />
+                                    <div className="font-roboto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl flex items-start gap-2 text-sm tracking-wider text-gray-50 my-4">
+                                        <img src={logo} className="w-5" />
+                                        <div>
+                                            <FormattedText response={message.text} />
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="font-roboto max-w-[70%] p-2 px-6 rounded-xl bg-gray-700 text-sm tracking-wide text-gray-100 my-4">
@@ -152,6 +177,7 @@ const Chatbot = () => {
                             <Textarea
                                 value={input}
                                 onChange={handleInputChange}
+                                onKeyDown={handleKeyDown}
                                 placeholder="Message bot..."
                                 required
                                 rows={4}

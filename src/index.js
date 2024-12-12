@@ -7,14 +7,17 @@ import { Provider } from 'react-redux';
 import { history, persistor, store } from './store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { HistoryRouter as Router } from 'redux-first-history/rr6';
+import { BrowserRouter } from 'react-router';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <Router history={history}>
-        <App />
-      </Router>
+      <BrowserRouter>
+        <Router history={history}>
+          <App />
+        </Router>
+      </BrowserRouter>
     </PersistGate>
   </Provider>
 );

@@ -1,0 +1,8 @@
+.sidebar div {
+  background-color: #171717;
+}
+
+.drawer div button:hover {
+  background-color: #212121;
+  color: #f9f9f9;
+}

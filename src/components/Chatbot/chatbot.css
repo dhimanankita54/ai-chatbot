@@ -8,3 +8,7 @@ pre[class*="language-"],
 .scroll::-webkit-scrollbar {
   display: none; /* Hides scrollbar in Webkit browsers */
 }
+
+.code-block-container{
+  max-width: 70vw;
+}
