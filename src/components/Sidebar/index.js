@@ -87,7 +87,7 @@ const SidebarComponent = () => {
                                 ))}
                             </Sidebar.ItemGroup>
                             <Sidebar.ItemGroup className="!bg-gray-900">
-                                <Sidebar.Item onClick={handleClearHistory} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={BiSolidTrashAlt}>
+                                <Sidebar.Item onClick={() => { handleClearHistory(); handleClose() }} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={BiSolidTrashAlt}>
                                     Clear History
                                 </Sidebar.Item>
                             </Sidebar.ItemGroup>
