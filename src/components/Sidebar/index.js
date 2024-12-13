@@ -78,7 +78,10 @@ const SidebarComponent = () => {
                                 </Sidebar.Item>
                                 <HR />
                                 {chatHistory?.map((chat, index) => (
-                                    <Sidebar.Item key={index} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm  flex items-start justify-start truncate chat" href="#" icon={TbHistory}>
+                                    <Sidebar.Item
+                                        onClick={() => { handleChatSelection(chat.id); handleClose() }}
+                                        key={index}
+                                        className="text-gray-50 hover:bg-gray-800 font-roboto text-sm flex items-start justify-start truncate chat" href="#" icon={TbHistory}>
                                         {chat.messages?.length > 0 ? capitalizeFirstLetter(chat.messages[0].text) : "New chat"}
                                     </Sidebar.Item>
                                 ))}
