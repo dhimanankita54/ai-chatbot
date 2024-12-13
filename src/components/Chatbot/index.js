@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button, Label, Textarea } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessages } from "./chatbotSlice";
+import { setActiveChat, setMessages } from "./chatbotSlice";
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // You can choose a different theme
 import 'prismjs/components/prism-python.min.js'; // Import specific languages as needed
@@ -83,13 +83,19 @@ const Chatbot = () => {
 
     // const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
-    const { messages, chatHistory } = useSelector((state) => state.chatbotSlice)
+    const { messages, chatHistory, activeChatId } = useSelector((state) => state.chatbotSlice)
     const dispatch = useDispatch();
 
+    // Ensure the default chat is active on load
     useEffect(() => {
-        // Load chat history or initialize session on component mount
-        console.log('Chat History:', chatHistory);
-    }, [chatHistory]);
+        // console.log("chatHistory", chatHistory)
+        if (!activeChatId) {
+            const defaultChat = chatHistory[0];
+            if (defaultChat) {
+                dispatch(setActiveChat(defaultChat.id));
+            }
+        }
+    }, [chatHistory, activeChatId, dispatch]);
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
@@ -99,31 +105,39 @@ const Chatbot = () => {
         if (input.trim() === '') return;
 
         // Add the user message to the messages array
-        dispatch(setMessages({ role: 'user', text: input }));
+        const userMessage = { role: 'user', text: input };
+        dispatch(setMessages(userMessage));
+        // dispatch(setMessages({ role: 'user', text: input }));
 
         try {
             // Send the user message to the ChatGPT API
             const prompt = input;
 
-            const history = messages.map((msg) => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }],
-            }));
+            // const history = messages.map((msg) => ({
+            //     role: msg.role === 'user' ? 'user' : 'model',
+            //     parts: [{ text: msg.text }],
+            // }));
 
-            history.push({
-                role: 'user',
-                parts: [{ text: input }],
-            });
+            // history.push({
+            //     role: 'user',
+            //     parts: [{ text: input }],
+            // });
+
+            const history = messages.map(msg => ({ role: msg.role, parts: [{ text: msg.text }] }));
+            history.push({ role: 'user', parts: [{ text: input }] });
+
             const chat = model.startChat({ history });
             const result = await chat.sendMessage(prompt);
 
-            console.log(result.response.text());
+            // console.log(result.response.text());
 
             // Extract the bot response from the API response
             const botResponse = result.response.text();
 
             // // Add the bot response to the messages array
-            dispatch(setMessages({ role: 'bot', text: botResponse }));
+            const botMessage = { role: 'bot', text: botResponse };
+            dispatch(setMessages(botMessage));
+            // dispatch(setMessages({ role: 'bot', text: botResponse }));
 
             // Clear the input field
             setInput('');
@@ -154,7 +168,7 @@ const Chatbot = () => {
                 }
                 <div className="w-full  flex items-center justify-center flex-col">
                     <div className="w-[95%] md:w-1/2 max-h-[370px] overflow-auto scroll pb-10">
-                        {messages.map((message, index) => (
+                        {chatHistory.find(chat => chat.id === activeChatId)?.messages.map((message, index) => (
                             <div key={index} className={`flex ${message.role === 'bot' ? "items-start justify-start" : "items-end justify-end"} flex-col`}>
                                 {message.role === 'bot' ? (
                                     <div className="font-roboto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl flex items-start gap-2 text-sm tracking-wider text-gray-50 my-4">

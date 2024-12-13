@@ -3,7 +3,7 @@ import './sidebar.css';
 import { MdLibraryAdd } from "react-icons/md";
 import { TbHistory } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
-import { addChatHistory, clearSessionHistory, openChatFromHistory, resetMessages, startNewChat } from "../Chatbot/chatbotSlice";
+import { addChatHistory, clearSessionHistory, createNewChat, resetMessages, setActiveChat } from "../Chatbot/chatbotSlice";
 import { useState } from "react";
 import { HiMenuAlt2 } from "react-icons/hi";
 import logo from '../../assets/images/chatbot.png';
@@ -21,17 +21,17 @@ const SidebarComponent = () => {
     const handleClose = () => setIsOpen(false);
 
     const handleNewChat = () => {
-        dispatch(resetMessages());
-        // dispatch(startNewChat());
-        dispatch(addChatHistory(messages))
+        // dispatch(resetMessages());
+        // dispatch(addChatHistory(messages));
+        dispatch(createNewChat());
     }
 
     const handleClearHistory = () => {
         dispatch(clearSessionHistory());
     }
 
-    const handleOpenChat = (chat) => {
-        dispatch(openChatFromHistory({ id: chat.id }));
+    const handleChatSelection = (chatId) => {
+        dispatch(setActiveChat(chatId));
     };
 
     return (
@@ -46,12 +46,12 @@ const SidebarComponent = () => {
                             New Chat
                         </Sidebar.Item>
                         {chatHistory?.length > 0 && <HR />}
-                        {chatHistory.map((chat, index) => (
+                        {chatHistory?.map((chat, index) => (
                             <Sidebar.Item
-                                // onClick={() => handleOpenChat(chat)} 
+                                onClick={() => handleChatSelection(chat.id)}
                                 key={index}
-                                className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={TbHistory}>
-                                {capitalizeFirstLetter(chat[0].text)}
+                                className="text-gray-50 hover:bg-gray-800 font-roboto text-sm flex items-start justify-start truncate chat" href="#" icon={TbHistory}>
+                                {chat.messages?.length > 0 ? capitalizeFirstLetter(chat.messages[0].text) : "New chat"}
                             </Sidebar.Item>
                         ))}
                     </Sidebar.ItemGroup>
@@ -77,9 +77,9 @@ const SidebarComponent = () => {
                                     New Chat
                                 </Sidebar.Item>
                                 <HR />
-                                {chatHistory.map((chat, index) => (
-                                    <Sidebar.Item key={index} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={TbHistory}>
-                                        {capitalizeFirstLetter(chat[0].text)}
+                                {chatHistory?.map((chat, index) => (
+                                    <Sidebar.Item key={index} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm  flex items-start justify-start truncate chat" href="#" icon={TbHistory}>
+                                        {chat.messages?.length > 0 ? capitalizeFirstLetter(chat.messages[0].text) : "New chat"}
                                     </Sidebar.Item>
                                 ))}
                             </Sidebar.ItemGroup>
