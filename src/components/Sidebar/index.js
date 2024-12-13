@@ -73,7 +73,7 @@ const SidebarComponent = () => {
                     <Sidebar className="!bg-gray-900 sidebar w-56 p-0">
                         <Sidebar.Items className="!bg-gray-900">
                             <Sidebar.ItemGroup className="!bg-gray-900">
-                                <Sidebar.Item onClick={handleNewChat} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={MdLibraryAdd}>
+                                <Sidebar.Item onClick={() => { handleNewChat(); handleClose() }} className="text-gray-50 hover:bg-gray-800 font-roboto text-sm" href="#" icon={MdLibraryAdd}>
                                     New Chat
                                 </Sidebar.Item>
                                 <HR />
